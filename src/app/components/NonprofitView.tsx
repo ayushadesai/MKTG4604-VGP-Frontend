@@ -309,26 +309,31 @@ export default function NonprofitView() {
                 />
               </div>
               <div>
-                <label className="block mb-2 text-sm font-medium text-gray-700 flex items-center">
-                  <Tag className="w-4 h-4 mr-2 text-teal-700" />
-                  Looking to Purchase?
+                <label className="block mb-2 text-sm font-medium text-gray-700">
+                  <Tag className="w-4 h-4 inline mr-2 text-teal-700" />
+                  Type of Purchase
                 </label>
-                <div className="flex items-center h-12">
+                <div className="flex gap-3">
                   <button
-                    onClick={() => setIsPurchasing(!isPurchasing)}
-                    className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
-                      isPurchasing ? "bg-teal-600" : "bg-gray-300"
+                    onClick={() => setIsPurchasing(false)}
+                    className={`flex-1 px-4 py-3 rounded-lg font-medium transition-all ${
+                      !isPurchasing
+                        ? "bg-teal-600 text-white shadow-md"
+                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                     }`}
                   >
-                    <span
-                      className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
-                        isPurchasing ? "translate-x-7" : "translate-x-1"
-                      }`}
-                    />
+                    Free
                   </button>
-                  <span className="ml-3 text-sm font-medium text-gray-700">
-                    {isPurchasing ? "Paying" : "Free"}
-                  </span>
+                  <button
+                    onClick={() => setIsPurchasing(true)}
+                    className={`flex-1 px-4 py-3 rounded-lg font-medium transition-all ${
+                      isPurchasing
+                        ? "bg-teal-600 text-white shadow-md"
+                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                    }`}
+                  >
+                    Paying
+                  </button>
                 </div>
               </div>
             </div>
