@@ -61,8 +61,8 @@ export default function Dashboard() {
                   onClick={() => setActiveTab("business")}
                   className={`flex items-center gap-2 px-6 py-2 rounded-md transition-all font-medium ${
                     activeTab === "business"
-                      ? "bg-[#1F7A63] text-white shadow-md"
-                      : "text-[#64748B] hover:text-[#1F7A63] hover:bg-white"
+                      ? "bg-[#16664E] text-white shadow-md"
+                      : "text-[#64748B] hover:text-[#16664E] hover:bg-white"
                   }`}
                 >
                   <Building2 className="w-4 h-4" />
@@ -72,8 +72,8 @@ export default function Dashboard() {
                   onClick={() => setActiveTab("buyer")}
                   className={`flex items-center gap-2 px-6 py-2 rounded-md transition-all font-medium ${
                     activeTab === "buyer"
-                      ? "bg-[#4CAF8E] text-white shadow-md"
-                      : "text-[#64748B] hover:text-[#4CAF8E] hover:bg-white"
+                      ? "bg-[#1F7A63] text-white shadow-md"
+                      : "text-[#64748B] hover:text-[#1F7A63] hover:bg-white"
                   }`}
                 >
                   <ShoppingCart className="w-4 h-4" />
