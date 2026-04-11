@@ -185,7 +185,7 @@ export default function BusinessView() {
           </div>
           <h2 className="mb-2 text-emerald-900 text-2xl font-bold">For Businesses</h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Tell us what you have available. We'll connect you with organizations that need it most.
+            Tell us what excess you have available, we will connect you with the best buyers based on your needs
           </p>
         </div>
 
@@ -204,7 +204,7 @@ export default function BusinessView() {
             <h3 className="text-emerald-900 font-semibold">Quick Input</h3>
           </div>
           <p className="text-sm text-gray-600 mb-3">
-            Describe your surplus naturally and we'll extract the details
+            Describe your surplus
           </p>
           <div className="flex gap-2">
             <input
