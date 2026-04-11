@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ShoppingCart, MapPin, Package, Search, MessageSquare, Send, RotateCcw } from "lucide-react";
+import { ShoppingCart, MapPin, Package, Search, MessageSquare, Send, RotateCcw, DollarSign, Tag } from "lucide-react";
 import { motion } from "motion/react";
 import CompanyMatchCard from "./CompanyMatchCard";
 import { mockCompanies, Company } from "../data/mockData";
@@ -13,6 +13,9 @@ export default function NonprofitView() {
   const [chatInput, setChatInput] = useState("");
   const [matches, setMatches] = useState<Company[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
+  const [isPurchasing, setIsPurchasing] = useState(false);
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -24,14 +27,17 @@ export default function NonprofitView() {
       setLocation(data.location || "");
       setQuantity(data.quantity || "");
       setBudget(data.budget || "");
+      setIsPurchasing(data.isPurchasing || false);
+      setMinPrice(data.minPrice || "");
+      setMaxPrice(data.maxPrice || "");
     }
   }, []);
 
   // Save to localStorage whenever form changes
   useEffect(() => {
-    const formData = { nonprofitName, goodsNeeded, location, quantity, budget };
+    const formData = { nonprofitName, goodsNeeded, location, quantity, budget, isPurchasing, minPrice, maxPrice };
     localStorage.setItem("nonprofitFormData", JSON.stringify(formData));
-  }, [nonprofitName, goodsNeeded, location, quantity, budget]);
+  }, [nonprofitName, goodsNeeded, location, quantity, budget, isPurchasing, minPrice, maxPrice]);
 
   const handleChatSubmit = () => {
     if (!chatInput.trim()) return;
@@ -120,6 +126,8 @@ export default function NonprofitView() {
     // Matching logic based on goods needed keywords
     const goodsLower = goodsNeeded.toLowerCase();
     const locationLower = location.toLowerCase();
+    const minPriceNum = minPrice ? parseFloat(minPrice) : 0;
+    const maxPriceNum = maxPrice ? parseFloat(maxPrice) : Infinity;
 
     const filtered = mockCompanies.filter((company) => {
       // Check if company inventory matches what buyer needs
@@ -137,6 +145,12 @@ export default function NonprofitView() {
                (goodsLower.includes('doughnut') && (itemLower.includes('doughnut') || itemLower.includes('baked goods'))) ||
                (goodsLower.includes('office') && (itemLower.includes('office') || itemLower.includes('desk') || itemLower.includes('chair')));
       });
+
+      // Filter by price range if purchasing
+      if (isPurchasing && hasInventoryMatch) {
+        const companyValue = company.estimatedValue;
+        return companyValue >= minPriceNum && companyValue <= maxPriceNum;
+      }
 
       return hasInventoryMatch;
     });
@@ -169,6 +183,10 @@ export default function NonprofitView() {
     setNonprofitName("");
     setGoodsNeeded("");
     setLocation("");
+    setQuantity("");
+    setBudget("");
+    setMinPrice("");
+    setMaxPrice("");
     setMatches([]);
     setHasSearched(false);
   };
@@ -185,9 +203,9 @@ export default function NonprofitView() {
           <div className="w-16 h-16 bg-gradient-to-br from-teal-600 to-cyan-400 text-white rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg">
             <ShoppingCart className="w-8 h-8" />
           </div>
-          <h2 className="mb-2 text-teal-900 text-2xl font-bold">For Organizations in Need</h2>
+          <h2 className="mb-2 text-teal-900 text-2xl font-bold">I'm a Buyer</h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Tell us what you need. We'll connect you with organizations that have surplus available.
+            Tell us what you need and we'll connect you with the closest businesses that have that surplus available available 
           </p>
         </div>
 
@@ -229,8 +247,9 @@ export default function NonprofitView() {
 
         {/* Form */}
         <div className="bg-white border border-cyan-100 rounded-lg p-6 mb-8 shadow-sm">
-          <h3 className="text-lg font-semibold text-teal-900 mb-4">Your Details</h3>
-          <div className="space-y-4">
+          <h3 className="text-lg font-semibold text-teal-900 mb-6">Your Details</h3>
+          <div className="space-y-6">
+            {/* Organization Name */}
             <div>
               <label className="block mb-2 text-sm font-medium text-gray-700">
                 <ShoppingCart className="w-4 h-4 inline mr-2 text-teal-700" />
@@ -241,10 +260,11 @@ export default function NonprofitView() {
                 placeholder="e.g., Local Food Bank, Tech Resale"
                 value={nonprofitName}
                 onChange={(e) => setNonprofitName(e.target.value)}
-                className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
+                className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent transition-colors"
               />
             </div>
 
+            {/* Goods Needed and Quantity */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block mb-2 text-sm font-medium text-gray-700">
@@ -256,7 +276,7 @@ export default function NonprofitView() {
                   placeholder="e.g., food, computers, clothing"
                   value={goodsNeeded}
                   onChange={(e) => setGoodsNeeded(e.target.value)}
-                  className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
+                  className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent transition-colors"
                 />
               </div>
               <div>
@@ -268,11 +288,12 @@ export default function NonprofitView() {
                   placeholder="e.g., 200 daily, 500 units"
                   value={quantity}
                   onChange={(e) => setQuantity(e.target.value)}
-                  className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
+                  className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent transition-colors"
                 />
               </div>
             </div>
 
+            {/* Location and Purchasing Toggle */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block mb-2 text-sm font-medium text-gray-700">
@@ -284,9 +305,79 @@ export default function NonprofitView() {
                   placeholder="e.g., Portland, OR"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
+                  className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent transition-colors"
                 />
               </div>
+              <div>
+                <label className="block mb-2 text-sm font-medium text-gray-700 flex items-center">
+                  <Tag className="w-4 h-4 mr-2 text-teal-700" />
+                  Looking to Purchase?
+                </label>
+                <div className="flex items-center h-12">
+                  <button
+                    onClick={() => setIsPurchasing(!isPurchasing)}
+                    className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
+                      isPurchasing ? "bg-teal-600" : "bg-gray-300"
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
+                        isPurchasing ? "translate-x-7" : "translate-x-1"
+                      }`}
+                    />
+                  </button>
+                  <span className="ml-3 text-sm font-medium text-gray-700">
+                    {isPurchasing ? "Paying" : "Free"}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Price Range - Conditional */}
+            {isPurchasing && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+                className="bg-teal-50 border border-teal-200 rounded-lg p-4 space-y-4"
+              >
+                <p className="text-sm font-medium text-teal-900">Set your price range</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block mb-2 text-sm font-medium text-gray-700">
+                      <DollarSign className="w-4 h-4 inline mr-2 text-teal-700" />
+                      Minimum Price
+                    </label>
+                    <input
+                      type="number"
+                      placeholder="e.g., 100"
+                      value={minPrice}
+                      onChange={(e) => setMinPrice(e.target.value)}
+                      className="w-full px-4 py-3 bg-white border border-teal-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent transition-colors"
+                      min="0"
+                    />
+                  </div>
+                  <div>
+                    <label className="block mb-2 text-sm font-medium text-gray-700">
+                      <DollarSign className="w-4 h-4 inline mr-2 text-teal-700" />
+                      Maximum Price
+                    </label>
+                    <input
+                      type="number"
+                      placeholder="e.g., 5000"
+                      value={maxPrice}
+                      onChange={(e) => setMaxPrice(e.target.value)}
+                      className="w-full px-4 py-3 bg-white border border-teal-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent transition-colors"
+                      min="0"
+                    />
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Budget field - only show if not purchasing */}
+            {!isPurchasing && (
               <div>
                 <label className="block mb-2 text-sm font-medium text-gray-700">
                   Budget (optional)
@@ -296,16 +387,16 @@ export default function NonprofitView() {
                   placeholder="e.g., $5,000"
                   value={budget}
                   onChange={(e) => setBudget(e.target.value)}
-                  className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
+                  className="w-full px-4 py-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent transition-colors"
                 />
               </div>
-            </div>
+            )}
 
-            <div className="flex gap-3 pt-2">
+            <div className="flex gap-3 pt-4 border-t border-gray-200">
               <button
                 onClick={handleFindMatches}
                 disabled={!goodsNeeded.trim()}
-                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md font-medium"
+                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md font-medium hover:shadow-lg"
               >
                 <Search className="w-5 h-5" />
                 Find Available
@@ -313,7 +404,7 @@ export default function NonprofitView() {
               {hasSearched && (
                 <button
                   onClick={handleReset}
-                  className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 text-gray-700 font-medium"
+                  className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 text-gray-700 font-medium hover:border-gray-400"
                 >
                   <RotateCcw className="w-4 h-4" />
                   New Search

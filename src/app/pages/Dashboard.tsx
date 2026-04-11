@@ -40,7 +40,7 @@ export default function Dashboard() {
               }`}
             >
               <Building2 className="w-4 h-4" />
-              <span>Businesses</span>
+              <span>I'm a Business</span>
             </button>
             <button
               onClick={() => setActiveTab("buyer")}
@@ -51,7 +51,7 @@ export default function Dashboard() {
               }`}
             >
               <ShoppingCart className="w-4 h-4" />
-              <span>Organizations in Need</span>
+              <span>I'm a Buyer</span>
             </button>
           </div>
         </div>
