@@ -7,7 +7,7 @@ interface LandingPageProps {
 
 export default function LandingPage({ onSelectRole }: LandingPageProps) {
   return (
-    <div className="h-screen bg-gradient-to-b from-gray-50 to-gray-100 flex flex-col items-center justify-center px-4 py-8">
+    <div className="h-screen bg-[#F2FBF7] flex flex-col items-center justify-center px-4 py-8">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -15,15 +15,15 @@ export default function LandingPage({ onSelectRole }: LandingPageProps) {
         className="text-center mb-10 max-w-2xl"
       >
         {/* Logo */}
-        <div className="w-16 h-16 bg-gradient-to-br from-teal-600 to-teal-500 text-white rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+        <div className="w-16 h-16 bg-[#4CAF8E] text-white rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
           <Sparkles className="w-8 h-8" />
         </div>
 
         {/* Title */}
-        <h1 className="mb-3 text-4xl font-bold text-teal-900">Surplus Connect</h1>
+        <h1 className="mb-3 text-4xl font-bold text-[#1E293B]">Surplus Connect</h1>
 
         {/* Tagline - Single line */}
-        <p className="text-base text-gray-600 font-medium leading-snug">
+        <p className="text-base text-[#64748B] font-medium leading-snug">
           Tell us what excess you have available, we will connect you with the best buyers based on your needs and Smart marketplace connecting business surplus with organizations in need. Simple, direct matching that creates real impact.
         </p>
       </motion.div>
@@ -40,16 +40,16 @@ export default function LandingPage({ onSelectRole }: LandingPageProps) {
           whileHover={{ scale: 1.05, y: -3 }}
           whileTap={{ scale: 0.98 }}
           onClick={() => onSelectRole("business")}
-          className="flex-1 bg-white border-2 border-emerald-200 rounded-xl p-6 shadow-md hover:shadow-lg transition-all hover:border-emerald-600"
+          className="flex-1 bg-white border-2 border-[#4CAF8E] rounded-xl p-6 shadow-md hover:shadow-xl transition-all hover:-translate-y-0.5 hover:border-[#1F7A63]"
         >
-          <div className="w-14 h-14 bg-gradient-to-br from-emerald-700 to-emerald-600 text-white rounded-lg flex items-center justify-center mx-auto mb-3 shadow-md">
+          <div className="w-14 h-14 bg-[#E6F7F1] text-[#1F7A63] rounded-lg flex items-center justify-center mx-auto mb-3 shadow-sm">
             <Building2 className="w-7 h-7" />
           </div>
-          <h2 className="text-xl font-bold text-emerald-900 mb-2">I'm a Business</h2>
-          <p className="text-sm text-gray-600 mb-4">
+          <h2 className="text-xl font-bold text-[#1F7A63] mb-2">I'm a Business</h2>
+          <p className="text-sm text-[#64748B] mb-4">
             Have excess inventory? Connect with buyers.
           </p>
-          <div className="flex items-center justify-center gap-2 text-emerald-700 font-semibold group text-sm">
+          <div className="flex items-center justify-center gap-2 text-[#4CAF8E] font-semibold group text-sm">
             Get Started
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </div>
@@ -60,16 +60,16 @@ export default function LandingPage({ onSelectRole }: LandingPageProps) {
           whileHover={{ scale: 1.05, y: -3 }}
           whileTap={{ scale: 0.98 }}
           onClick={() => onSelectRole("buyer")}
-          className="flex-1 bg-white border-2 border-amber-200 rounded-xl p-6 shadow-md hover:shadow-lg transition-all hover:border-amber-600"
+          className="flex-1 bg-white border-2 border-[#FCD34D] rounded-xl p-6 shadow-md hover:shadow-xl transition-all hover:-translate-y-0.5 hover:border-[#F59E0B]"
         >
-          <div className="w-14 h-14 bg-gradient-to-br from-amber-600 to-amber-500 text-white rounded-lg flex items-center justify-center mx-auto mb-3 shadow-md">
+          <div className="w-14 h-14 bg-[#FFF4D6] text-[#F59E0B] rounded-lg flex items-center justify-center mx-auto mb-3 shadow-sm">
             <ShoppingCart className="w-7 h-7" />
           </div>
-          <h2 className="text-xl font-bold text-amber-900 mb-2">I'm a Buyer</h2>
-          <p className="text-sm text-gray-600 mb-4">
+          <h2 className="text-xl font-bold text-[#F59E0B] mb-2">I'm a Buyer</h2>
+          <p className="text-sm text-[#64748B] mb-4">
             Looking for great prices? Find surplus inventory.
           </p>
-          <div className="flex items-center justify-center gap-2 text-amber-700 font-semibold group text-sm">
+          <div className="flex items-center justify-center gap-2 text-[#F59E0B] font-semibold group text-sm">
             Get Started
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </div>

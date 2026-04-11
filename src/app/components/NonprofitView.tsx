@@ -200,19 +200,19 @@ export default function NonprofitView() {
       >
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-br from-amber-600 to-amber-500 text-white rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+          <div className="w-16 h-16 bg-[#FFF4D6] text-[#F59E0B] rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg">
             <ShoppingCart className="w-8 h-8" />
           </div>
-          <h2 className="mb-2 text-amber-900 text-2xl font-bold">I'm a Buyer</h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            Tell us what you need and we'll connect you with the closest businesses that have that surplus available available 
+          <h2 className="mb-2 text-[#1E293B] text-2xl font-bold">I'm a Buyer</h2>
+          <p className="text-[#64748B] max-w-2xl mx-auto">
+            Tell us what you need and we'll connect you with the closest businesses that have that surplus available available
           </p>
         </div>
 
         {/* Example */}
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
-          <p className="text-sm font-medium text-amber-900 mb-2">Example:</p>
-          <p className="text-sm text-amber-800">
+        <div className="bg-[#FFFBEB] border border-[#FCD34D] rounded-lg p-4 mb-6">
+          <p className="text-sm font-medium text-[#F59E0B] mb-2">Example:</p>
+          <p className="text-sm text-[#F59E0B]">
             "I'm a food bank in Portland looking for donated food and produce."
           </p>
         </div>

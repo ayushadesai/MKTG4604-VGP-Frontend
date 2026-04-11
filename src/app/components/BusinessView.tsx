@@ -180,19 +180,19 @@ export default function BusinessView() {
       >
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-br from-emerald-700 to-emerald-600 text-white rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+          <div className="w-16 h-16 bg-[#E6F7F1] text-[#1F7A63] rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg">
             <Building2 className="w-8 h-8" />
           </div>
-          <h2 className="mb-2 text-emerald-900 text-2xl font-bold">For Businesses</h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
+          <h2 className="mb-2 text-[#1E293B] text-2xl font-bold">For Businesses</h2>
+          <p className="text-[#64748B] max-w-2xl mx-auto">
             Tell us what excess you have available, we will connect you with the best buyers based on your needs
           </p>
         </div>
 
         {/* Example */}
-        <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4 mb-6">
-          <p className="text-sm font-medium text-emerald-900 mb-2">Example:</p>
-          <p className="text-sm text-emerald-800">
+        <div className="bg-[#F2FBF7] border border-[#4CAF8E] rounded-lg p-4 mb-6">
+          <p className="text-sm font-medium text-[#1F7A63] mb-2">Example:</p>
+          <p className="text-sm text-[#1E293B]">
             "I'm Dunkin' and I have 500 extra doughnuts every day in Boston, MA."
           </p>
         </div>
@@ -200,10 +200,10 @@ export default function BusinessView() {
         {/* Chat Box */}
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-3">
-            <MessageSquare className="w-5 h-5 text-emerald-700" />
-            <h3 className="text-emerald-900 font-semibold">Quick Input</h3>
+            <MessageSquare className="w-5 h-5 text-[#1F7A63]" />
+            <h3 className="text-[#1E293B] font-semibold">Quick Input</h3>
           </div>
-          <p className="text-sm text-gray-600 mb-3">
+          <p className="text-sm text-[#64748B] mb-3">
             Describe your surplus
           </p>
           <div className="flex gap-2">
@@ -213,12 +213,12 @@ export default function BusinessView() {
               value={chatInput}
               onChange={(e) => setChatInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleChatSubmit()}
-              className="flex-1 px-4 py-3 bg-white border border-emerald-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600"
+              className="flex-1 px-4 py-3 bg-white border border-[#4CAF8E] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4CAF8E]"
             />
             <button
               onClick={handleChatSubmit}
               disabled={!chatInput.trim()}
-              className="px-4 py-3 bg-emerald-700 text-white rounded-lg hover:bg-emerald-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
+              className="px-4 py-3 bg-[#1F7A63] text-white rounded-lg hover:bg-[#16664E] transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
             >
               <Send className="w-5 h-5" />
             </button>
@@ -227,11 +227,11 @@ export default function BusinessView() {
 
         {/* Form */}
         <div className="bg-white border border-emerald-100 rounded-lg p-6 mb-8 shadow-sm">
-          <h3 className="text-lg font-semibold text-emerald-900 mb-4">Your Details</h3>
+          <h3 className="text-lg font-semibold text-[#1E293B] mb-4">Your Details</h3>
           <div className="space-y-4">
             <div>
-              <label className="block mb-2 text-sm font-medium text-gray-700">
-                <Building2 className="w-4 h-4 inline mr-2 text-emerald-700" />
+              <label className="block mb-2 text-[#1E293B]">
+                <Building2 className="w-4 h-4 inline mr-2 text-[#1F7A63]" />
                 Organization Name
               </label>
               <input
@@ -239,14 +239,14 @@ export default function BusinessView() {
                 placeholder="e.g., ABC Corp, Local Bakery"
                 value={companyName}
                 onChange={(e) => setCompanyName(e.target.value)}
-                className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent"
+                className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4CAF8E] focus:border-transparent"
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block mb-2 text-sm font-medium text-gray-700">
-                  <Package className="w-4 h-4 inline mr-2 text-emerald-700" />
+                <label className="block mb-2 text-sm font-medium text-[#1E293B]">
+                  <Package className="w-4 h-4 inline mr-2 text-[#1F7A63]" />
                   Item Available
                 </label>
                 <input
@@ -254,11 +254,11 @@ export default function BusinessView() {
                   placeholder="e.g., doughnuts, laptops, clothing"
                   value={inventory}
                   onChange={(e) => setInventory(e.target.value)}
-                  className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent"
+                  className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4CAF8E] focus:border-transparent"
                 />
               </div>
               <div>
-                <label className="block mb-2 text-sm font-medium text-gray-700">
+                <label className="block mb-2 text-sm font-medium text-[#1E293B]">
                   Quantity
                 </label>
                 <input
@@ -266,15 +266,15 @@ export default function BusinessView() {
                   placeholder="e.g., 500 daily, 1000 units"
                   value={quantity}
                   onChange={(e) => setQuantity(e.target.value)}
-                  className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent"
+                  className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4CAF8E] focus:border-transparent"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block mb-2 text-sm font-medium text-gray-700">
-                  <MapPin className="w-4 h-4 inline mr-2 text-emerald-700" />
+                <label className="block mb-2 text-sm font-medium text-[#1E293B]">
+                  <MapPin className="w-4 h-4 inline mr-2 text-[#1F7A63]" />
                   Location
                 </label>
                 <input
@@ -282,13 +282,13 @@ export default function BusinessView() {
                   placeholder="e.g., Boston, MA"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent"
+                  className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4CAF8E] focus:border-transparent"
                 />
               </div>
 
               <div>
-                <label className="block mb-2 text-sm font-medium text-gray-700">
-                  <DollarSign className="w-4 h-4 inline mr-2 text-emerald-700" />
+                <label className="block mb-2 text-sm font-medium text-[#1E293B]">
+                  <DollarSign className="w-4 h-4 inline mr-2 text-[#1F7A63]" />
                   Estimated Value (optional)
                 </label>
                 <input
@@ -296,7 +296,7 @@ export default function BusinessView() {
                   placeholder="e.g., $5,000"
                   value={estimatedValue}
                   onChange={(e) => setEstimatedValue(e.target.value)}
-                  className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent"
+                  className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4CAF8E] focus:border-transparent"
                 />
               </div>
             </div>
