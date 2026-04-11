@@ -40,17 +40,16 @@ export default function BusinessView() {
 
     // Extract company name
     const companyPatterns = [
-      /i'?m\s+(?:from\s+|representing\s+)?([a-zA-Z\s&]+?)(?:\s+and|,|\.|$)/i,
-      /we'?re\s+(?:from\s+|representing\s+)?([a-zA-Z\s&]+?)(?:\s+and|,|\.|$)/i,
-      /(?:from|at)\s+([a-zA-Z\s&]+?)(?:\s+and|,|\.|$)/i,
-      /([a-zA-Z\s&]+?)\s+(?:has|have|is providing)/i,
+      /i'?m\s+([a-zA-Z\s&]+?)(?:\s+and|,|\.|$)/i,
+      /from\s+([a-zA-Z\s&]+?)(?:\s+and|,|\.|$)/i,
+      /we'?re\s+([a-zA-Z\s&]+?)(?:\s+and|,|\.|$)/i,
     ];
 
     for (const pattern of companyPatterns) {
       const match = input.match(pattern);
       if (match && match[1]) {
         const extracted = match[1].trim();
-        if (extracted.length > 2 && !['food', 'clothing', 'electronics', 'computers', 'laptops'].includes(extracted)) {
+        if (extracted.length > 2) {
           setCompanyName(extracted.charAt(0).toUpperCase() + extracted.slice(1));
           break;
         }
@@ -59,17 +58,18 @@ export default function BusinessView() {
 
     // Extract quantity and inventory
     const quantityPatterns = [
-      /(\d+[,\d]*)\s+(?:extra|excess|surplus)?\s*([a-zA-Z\s]+?)(?:\s+every\s+day|daily|per day|a day|available|in stock)/i,
-      /(?:have|has)\s+(\d+[,\d]*)\s+([a-zA-Z\s]+?)(?:\s+available|in stock|to donate|to give)/i,
-      /(\d+[,\d]*)\s+([a-zA-Z\s]+?)(?:\s+that|which)/i,
+      /(\d+[,\d]*)\s+(extra|excess)?\s*([a-zA-Z\s]+?)(?:\s+every\s+day|daily|per day|a day)/i,
+      /(\d+[,\d]*)\s+([a-zA-Z\s]+?)(?:\s+in\s+stock|available)/i,
+      /have\s+(\d+[,\d]*)\s+([a-zA-Z\s]+)/i,
     ];
 
     for (const pattern of quantityPatterns) {
       const match = input.match(pattern);
       if (match) {
         setQuantity(match[1]);
-        if (match[2]) {
-          setInventory(match[2].trim());
+        const itemIndex = match[2] && (match[2] === 'extra' || match[2] === 'excess') ? 3 : 2;
+        if (match[itemIndex]) {
+          setInventory(match[itemIndex].trim());
         }
         break;
       }
@@ -78,9 +78,8 @@ export default function BusinessView() {
     // If no quantity pattern matched, try to extract just the inventory
     if (!inventory) {
       const inventoryPatterns = [
-        /(?:extra|excess|surplus|donate|give away)\s+([a-zA-Z\s,]+?)(?:\s+to|for|that|$)/i,
-        /(?:have|has)\s+(?:some\s+)?([a-zA-Z\s,]+?)(?:\s+to|for|that|$)/i,
-        /(?:providing|offering)\s+([a-zA-Z\s,]+?)(?:\s+to|for|that|$)/i,
+        /(?:extra|excess|surplus)\s+([a-zA-Z\s,]+?)(?:\s+who|$)/i,
+        /have\s+(?:some\s+)?([a-zA-Z\s,]+?)(?:\s+who|that|to)/i,
       ];
 
       for (const pattern of inventoryPatterns) {
@@ -94,9 +93,8 @@ export default function BusinessView() {
 
     // Extract location
     const locationPatterns = [
-      /(?:in|from|at|located in|based in)\s+([A-Z][a-zA-Z\s]+,\s*[A-Z]{2})/,
-      /(?:in|from|at|located in|based in)\s+([A-Z][a-zA-Z\s]+)/,
-      /([A-Z][a-zA-Z\s]+,\s*[A-Z]{2})\s+(?:area|region)/,
+      /(?:in|from|at)\s+([A-Z][a-zA-Z\s]+,\s*[A-Z]{2})/,
+      /(?:in|from|at)\s+([A-Z][a-zA-Z\s]+)/,
     ];
 
     for (const pattern of locationPatterns) {
@@ -108,18 +106,10 @@ export default function BusinessView() {
     }
 
     // Extract value
-    const valuePatterns = [
-      /(?:valued at|worth|estimated value of|cost|price)\s+\$?(\d+[,\d]*(?:\.\d+)?[kKmM]?)/i,
-      /\$(\d+[,\d]*(?:\.\d+)?[kKmM]?)\s+(?:value|worth|estimated)/i,
-      /\$(\d+[,\d]*(?:\.\d+)?[kKmM]?)/,
-    ];
-
-    for (const pattern of valuePatterns) {
-      const match = chatInput.match(pattern);
-      if (match && match[1]) {
-        setEstimatedValue('$' + match[1]);
-        break;
-      }
+    const valuePattern = /\$(\d+[,\d]*(?:\.\d+)?[kKmM]?)/;
+    const valueMatch = chatInput.match(valuePattern);
+    if (valueMatch) {
+      setEstimatedValue('$' + valueMatch[1]);
     }
 
     setChatInput("");
@@ -193,9 +183,9 @@ export default function BusinessView() {
           <div className="w-16 h-16 bg-[#E6F7F1] text-[#1F7A63] rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg">
             <Building2 className="w-8 h-8" />
           </div>
-          <h2 className="mb-2 text-[#1E293B] text-2xl font-bold">List Your Surplus</h2>
+          <h2 className="mb-2 text-[#1E293B] text-2xl font-bold">For Businesses</h2>
           <p className="text-[#64748B] max-w-2xl mx-auto">
-            Share your excess inventory and we'll match you with organizations that can use it, creating positive impact while optimizing your resources.
+            Tell us what excess you have available, we will connect you with the best buyers based on your needs
           </p>
         </div>
 
@@ -214,7 +204,7 @@ export default function BusinessView() {
             <h3 className="text-[#1E293B] font-semibold">Quick Input</h3>
           </div>
           <p className="text-sm text-[#64748B] mb-3">
-            Describe your surplus in natural language and we'll automatically fill in the details below
+            Describe your surplus
           </p>
           <div className="flex gap-2">
             <input
@@ -237,7 +227,7 @@ export default function BusinessView() {
 
         {/* Form */}
         <div className="bg-white border border-emerald-100 rounded-lg p-6 mb-8 shadow-sm">
-          <h3 className="text-lg font-semibold text-[#1E293B] mb-4">Surplus Details</h3>
+          <h3 className="text-lg font-semibold text-[#1E293B] mb-4">Your Details</h3>
           <div className="space-y-4">
             <div>
               <label className="block mb-2 text-[#1E293B]">
