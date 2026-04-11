@@ -24,7 +24,7 @@ export default function LandingPage({ onSelectRole }: LandingPageProps) {
 
         {/* Tagline - Single line */}
         <p className="text-base text-[#64748B] font-medium leading-snug">
-          Tell us what excess you have available, we will connect you with the best buyers based on your needs and Smart marketplace connecting business surplus with organizations in need. Simple, direct matching that creates real impact.
+            Tell us what excess you have available, we will connect you with the best buyers based on your needs. Simple. Easy. Direct. 
         </p>
       </motion.div>
 

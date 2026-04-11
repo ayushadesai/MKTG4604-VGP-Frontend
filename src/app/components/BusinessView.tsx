@@ -193,7 +193,7 @@ export default function BusinessView() {
         <div className="bg-[#F2FBF7] border border-[#4CAF8E] rounded-lg p-4 mb-6">
           <p className="text-sm font-medium text-[#1F7A63] mb-2">Example:</p>
           <p className="text-sm text-[#1E293B]">
-            "I'm Dunkin' and I have 500 extra doughnuts every day in Boston, MA."
+            "I'm Dunkin' and I have 500 extra doughnuts at the end of every day in Boston, MA."
           </p>
         </div>
 

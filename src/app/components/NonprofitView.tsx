@@ -205,7 +205,7 @@ export default function NonprofitView() {
           </div>
           <h2 className="mb-2 text-[#1E293B] text-2xl font-bold">I'm a Buyer</h2>
           <p className="text-[#64748B] max-w-2xl mx-auto">
-            Tell us what you need and we'll connect you with the closest businesses that have that surplus available available
+            Tell us what you need and we'll connect you with the closest businesses that have that surplus available
           </p>
         </div>
 
@@ -213,7 +213,7 @@ export default function NonprofitView() {
         <div className="bg-[#F2FBF7] border border-[#4CAF8E] rounded-lg p-4 mb-6">
           <p className="text-sm font-medium text-[#1F7A63] mb-2">Example:</p>
           <p className="text-sm text-[#1E293B]">
-            "I'm a food bank in Portland looking for donated food and produce."
+            "I'm a food bank in Portland looking for food and produce that can be donated."
           </p>
         </div>
 
