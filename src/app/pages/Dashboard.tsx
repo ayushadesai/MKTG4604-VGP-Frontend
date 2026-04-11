@@ -77,7 +77,7 @@ export default function Dashboard() {
                   }`}
                 >
                   <ShoppingCart className="w-4 h-4" />
-                  <span>Looking for Available Surplus Near Me</span>
+                  <span>I'm a Buyer</span>
                 </button>
               </div>
             </div>
@@ -85,11 +85,7 @@ export default function Dashboard() {
 
           {/* Main Content */}
           <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 bg-gray-50 min-h-screen">
-            {activeTab === "business" ? (
-            <BusinessView />
-          ) : activeTab === "buyer" ? (
-            <NonprofitView />
-          ) : null}
+            {activeTab === "business" ? <BusinessView /> : <NonprofitView />}
           </main>
         </>
       )}
