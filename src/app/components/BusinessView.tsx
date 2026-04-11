@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Building2, MapPin, Package, DollarSign, Search, MessageSquare, Send } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Building2, MapPin, Package, DollarSign, Search, MessageSquare, Send, RotateCcw } from "lucide-react";
 import { motion } from "motion/react";
 import NonprofitMatchCard from "./NonprofitMatchCard";
 import { mockNonprofits, Nonprofit } from "../data/mockData";
@@ -13,6 +13,25 @@ export default function BusinessView() {
   const [chatInput, setChatInput] = useState("");
   const [matches, setMatches] = useState<Nonprofit[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
+
+  // Load from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem("businessFormData");
+    if (saved) {
+      const data = JSON.parse(saved);
+      setCompanyName(data.companyName || "");
+      setInventory(data.inventory || "");
+      setLocation(data.location || "");
+      setEstimatedValue(data.estimatedValue || "");
+      setQuantity(data.quantity || "");
+    }
+  }, []);
+
+  // Save to localStorage whenever form changes
+  useEffect(() => {
+    const formData = { companyName, inventory, location, estimatedValue, quantity };
+    localStorage.setItem("businessFormData", JSON.stringify(formData));
+  }, [companyName, inventory, location, estimatedValue, quantity]);
 
   const handleChatSubmit = () => {
     if (!chatInput.trim()) return;
@@ -161,47 +180,45 @@ export default function BusinessView() {
       >
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-primary text-primary-foreground rounded-xl flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg">
             <Building2 className="w-8 h-8" />
           </div>
-          <h2 className="mb-2">For Businesses</h2>
+          <h2 className="mb-2 text-blue-600">I Have Surplus</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Have excess inventory? Find nonprofits that need exactly what you have. Turn surplus
-            into social impact.
+            Tell us what you have available. We'll connect you with organizations that need it most.
           </p>
         </div>
 
         {/* Example */}
-        <div className="bg-muted/30 border border-border rounded-lg p-4 mb-6">
-          <p className="text-sm text-muted-foreground mb-2">Example:</p>
-          <p className="text-sm italic">
-            "I'm Dunkin' and I have 500 extra doughnuts every day. Who can I sell this to or donate
-            this to for the best impact?"
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+          <p className="text-sm font-medium text-blue-900 mb-2">Example:</p>
+          <p className="text-sm text-blue-800">
+            "I'm Dunkin' and I have 500 extra doughnuts every day in Boston, MA."
           </p>
         </div>
 
         {/* Chat Box */}
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-3">
-            <MessageSquare className="w-5 h-5 text-primary" />
-            <h3>Quick Fill</h3>
+            <MessageSquare className="w-5 h-5 text-blue-600" />
+            <h3 className="text-blue-900 font-semibold">Quick Input</h3>
           </div>
           <p className="text-sm text-muted-foreground mb-3">
-            Describe your situation naturally and we'll automatically fill in the details below
+            Describe your surplus naturally and we'll extract the details
           </p>
           <div className="flex gap-2">
             <input
               type="text"
-              placeholder="e.g., I'm Dunkin' and have 500 extra doughnuts every day in Boston, MA..."
+              placeholder="e.g., I have 500 laptops available in California..."
               value={chatInput}
               onChange={(e) => setChatInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleChatSubmit()}
-              className="flex-1 px-4 py-3 bg-input-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
+              className="flex-1 px-4 py-3 bg-input-background border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <button
               onClick={handleChatSubmit}
               disabled={!chatInput.trim()}
-              className="px-4 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
             >
               <Send className="w-5 h-5" />
             </button>
@@ -209,54 +226,55 @@ export default function BusinessView() {
         </div>
 
         {/* Form */}
-        <div className="bg-card border border-border rounded-lg p-6 mb-8">
+        <div className="bg-white border border-blue-100 rounded-lg p-6 mb-8 shadow-sm">
+          <h3 className="text-lg font-semibold text-blue-900 mb-4">Your Details</h3>
           <div className="space-y-4">
             <div>
-              <label className="block mb-2">
-                <Building2 className="w-4 h-4 inline mr-2" />
-                Company Name
+              <label className="block mb-2 text-sm font-medium text-gray-700">
+                <Building2 className="w-4 h-4 inline mr-2 text-blue-600" />
+                Organization Name
               </label>
               <input
                 type="text"
-                placeholder="e.g., Dunkin', TechFlow Electronics"
+                placeholder="e.g., ABC Corp, Local Bakery"
                 value={companyName}
                 onChange={(e) => setCompanyName(e.target.value)}
-                className="w-full px-4 py-2 bg-input-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
+                className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block mb-2">
-                  <Package className="w-4 h-4 inline mr-2" />
-                  What do you have in excess?
+                <label className="block mb-2 text-sm font-medium text-gray-700">
+                  <Package className="w-4 h-4 inline mr-2 text-blue-600" />
+                  Item Available
                 </label>
                 <input
                   type="text"
                   placeholder="e.g., doughnuts, laptops, clothing"
                   value={inventory}
                   onChange={(e) => setInventory(e.target.value)}
-                  className="w-full px-4 py-2 bg-input-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
               <div>
-                <label className="block mb-2">
-                  Quantity (optional)
+                <label className="block mb-2 text-sm font-medium text-gray-700">
+                  Quantity
                 </label>
                 <input
                   type="text"
                   placeholder="e.g., 500 daily, 1000 units"
                   value={quantity}
                   onChange={(e) => setQuantity(e.target.value)}
-                  className="w-full px-4 py-2 bg-input-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block mb-2">
-                  <MapPin className="w-4 h-4 inline mr-2" />
+                <label className="block mb-2 text-sm font-medium text-gray-700">
+                  <MapPin className="w-4 h-4 inline mr-2 text-blue-600" />
                   Location
                 </label>
                 <input
@@ -264,13 +282,13 @@ export default function BusinessView() {
                   placeholder="e.g., Boston, MA"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  className="w-full px-4 py-2 bg-input-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
 
               <div>
-                <label className="block mb-2">
-                  <DollarSign className="w-4 h-4 inline mr-2" />
+                <label className="block mb-2 text-sm font-medium text-gray-700">
+                  <DollarSign className="w-4 h-4 inline mr-2 text-blue-600" />
                   Estimated Value (optional)
                 </label>
                 <input
@@ -278,7 +296,7 @@ export default function BusinessView() {
                   placeholder="e.g., $5,000"
                   value={estimatedValue}
                   onChange={(e) => setEstimatedValue(e.target.value)}
-                  className="w-full px-4 py-2 bg-input-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
             </div>
@@ -287,17 +305,18 @@ export default function BusinessView() {
               <button
                 onClick={handleFindMatches}
                 disabled={!inventory.trim()}
-                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md font-medium"
               >
                 <Search className="w-5 h-5" />
-                Find Matching Nonprofits
+                Find Matches
               </button>
               {hasSearched && (
                 <button
                   onClick={handleReset}
-                  className="px-6 py-3 border border-border rounded-lg hover:bg-muted transition-colors"
+                  className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 text-gray-700 font-medium"
                 >
-                  Reset
+                  <RotateCcw className="w-4 h-4" />
+                  New Search
                 </button>
               )}
             </div>
@@ -311,18 +330,17 @@ export default function BusinessView() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="mb-4">
-              <h3 className="mb-1">
-                {matches.length > 0 ? "Matching Nonprofits" : "No Matches Found"}
+            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <h3 className="mb-2 text-blue-900 font-semibold">
+                {matches.length > 0 ? "Matching Recipients" : "No Matches Found"}
               </h3>
               {matches.length > 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  Found {matches.length} {matches.length === 1 ? "nonprofit" : "nonprofits"} that
-                  need {inventory}
+                <p className="text-sm text-blue-800">
+                  Found {matches.length} {matches.length === 1 ? "organization" : "organizations"} that can use {inventory}
                 </p>
               ) : (
-                <p className="text-sm text-muted-foreground">
-                  Try different keywords like "food", "electronics", "clothing", etc.
+                <p className="text-sm text-blue-800">
+                  Try different items like "food", "electronics", "clothing", or "furniture".
                 </p>
               )}
             </div>

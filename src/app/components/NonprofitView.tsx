@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { ShoppingCart, MapPin, Package, Search, MessageSquare, Send } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ShoppingCart, MapPin, Package, Search, MessageSquare, Send, RotateCcw } from "lucide-react";
 import { motion } from "motion/react";
 import CompanyMatchCard from "./CompanyMatchCard";
 import { mockCompanies, Company } from "../data/mockData";
@@ -13,6 +13,25 @@ export default function NonprofitView() {
   const [chatInput, setChatInput] = useState("");
   const [matches, setMatches] = useState<Company[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
+
+  // Load from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem("nonprofitFormData");
+    if (saved) {
+      const data = JSON.parse(saved);
+      setNonprofitName(data.nonprofitName || "");
+      setGoodsNeeded(data.goodsNeeded || "");
+      setLocation(data.location || "");
+      setQuantity(data.quantity || "");
+      setBudget(data.budget || "");
+    }
+  }, []);
+
+  // Save to localStorage whenever form changes
+  useEffect(() => {
+    const formData = { nonprofitName, goodsNeeded, location, quantity, budget };
+    localStorage.setItem("nonprofitFormData", JSON.stringify(formData));
+  }, [nonprofitName, goodsNeeded, location, quantity, budget]);
 
   const handleChatSubmit = () => {
     if (!chatInput.trim()) return;
@@ -163,47 +182,45 @@ export default function NonprofitView() {
       >
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-primary text-primary-foreground rounded-xl flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg">
             <ShoppingCart className="w-8 h-8" />
           </div>
-          <h2 className="mb-2">For Buyers</h2>
+          <h2 className="mb-2 text-green-600">I'm Looking</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Whether you're a nonprofit, food bank, or reseller — find companies with excess inventory
-            that matches what you need. Access surplus before it's disposed.
+            Tell us what you need. We'll connect you with organizations that have surplus available.
           </p>
         </div>
 
         {/* Example */}
-        <div className="bg-muted/30 border border-border rounded-lg p-4 mb-6">
-          <p className="text-sm text-muted-foreground mb-2">Example:</p>
-          <p className="text-sm italic">
-            "I'm Portland Food Bank. How can I get donated food from local businesses with excess
-            inventory?"
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+          <p className="text-sm font-medium text-green-900 mb-2">Example:</p>
+          <p className="text-sm text-green-800">
+            "I'm a food bank in Portland looking for donated food and produce."
           </p>
         </div>
 
         {/* Chat Box */}
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-3">
-            <MessageSquare className="w-5 h-5 text-primary" />
-            <h3>Quick Fill</h3>
+            <MessageSquare className="w-5 h-5 text-green-600" />
+            <h3 className="text-green-900 font-semibold">Quick Input</h3>
           </div>
           <p className="text-sm text-muted-foreground mb-3">
-            Describe what you need and we'll automatically fill in the details below
+            Describe what you need and we'll extract the details
           </p>
           <div className="flex gap-2">
             <input
               type="text"
-              placeholder="e.g., I'm a food bank in Portland looking for donated food..."
+              placeholder="e.g., I need electronics, laptops, or office furniture in California..."
               value={chatInput}
               onChange={(e) => setChatInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleChatSubmit()}
-              className="flex-1 px-4 py-3 bg-input-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
+              className="flex-1 px-4 py-3 bg-input-background border border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
             />
             <button
               onClick={handleChatSubmit}
               disabled={!chatInput.trim()}
-              className="px-4 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
             >
               <Send className="w-5 h-5" />
             </button>
@@ -211,38 +228,39 @@ export default function NonprofitView() {
         </div>
 
         {/* Form */}
-        <div className="bg-card border border-border rounded-lg p-6 mb-8">
+        <div className="bg-white border border-green-100 rounded-lg p-6 mb-8 shadow-sm">
+          <h3 className="text-lg font-semibold text-green-900 mb-4">Your Details</h3>
           <div className="space-y-4">
             <div>
-              <label className="block mb-2">
-                <ShoppingCart className="w-4 h-4 inline mr-2" />
+              <label className="block mb-2 text-sm font-medium text-gray-700">
+                <ShoppingCart className="w-4 h-4 inline mr-2 text-green-600" />
                 Organization Name
               </label>
               <input
                 type="text"
-                placeholder="e.g., Portland Food Bank, Tech Resale Co, Digital Bridge Foundation"
+                placeholder="e.g., Local Food Bank, Tech Resale"
                 value={nonprofitName}
                 onChange={(e) => setNonprofitName(e.target.value)}
-                className="w-full px-4 py-2 bg-input-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
+                className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block mb-2">
-                  <Package className="w-4 h-4 inline mr-2" />
-                  What do you need?
+                <label className="block mb-2 text-sm font-medium text-gray-700">
+                  <Package className="w-4 h-4 inline mr-2 text-green-600" />
+                  What Do You Need?
                 </label>
                 <input
                   type="text"
                   placeholder="e.g., food, computers, clothing"
                   value={goodsNeeded}
                   onChange={(e) => setGoodsNeeded(e.target.value)}
-                  className="w-full px-4 py-2 bg-input-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 />
               </div>
               <div>
-                <label className="block mb-2">
+                <label className="block mb-2 text-sm font-medium text-gray-700">
                   Quantity (optional)
                 </label>
                 <input
@@ -250,15 +268,15 @@ export default function NonprofitView() {
                   placeholder="e.g., 200 daily, 500 units"
                   value={quantity}
                   onChange={(e) => setQuantity(e.target.value)}
-                  className="w-full px-4 py-2 bg-input-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block mb-2">
-                  <MapPin className="w-4 h-4 inline mr-2" />
+                <label className="block mb-2 text-sm font-medium text-gray-700">
+                  <MapPin className="w-4 h-4 inline mr-2 text-green-600" />
                   Location
                 </label>
                 <input
@@ -266,19 +284,19 @@ export default function NonprofitView() {
                   placeholder="e.g., Portland, OR"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  className="w-full px-4 py-2 bg-input-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 />
               </div>
               <div>
-                <label className="block mb-2">
+                <label className="block mb-2 text-sm font-medium text-gray-700">
                   Budget (optional)
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g., $5,000 (for resellers)"
+                  placeholder="e.g., $5,000"
                   value={budget}
                   onChange={(e) => setBudget(e.target.value)}
-                  className="w-full px-4 py-2 bg-input-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 />
               </div>
             </div>
@@ -287,17 +305,18 @@ export default function NonprofitView() {
               <button
                 onClick={handleFindMatches}
                 disabled={!goodsNeeded.trim()}
-                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md font-medium"
               >
                 <Search className="w-5 h-5" />
-                Find Available Inventory
+                Find Available
               </button>
               {hasSearched && (
                 <button
                   onClick={handleReset}
-                  className="px-6 py-3 border border-border rounded-lg hover:bg-muted transition-colors"
+                  className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 text-gray-700 font-medium"
                 >
-                  Reset
+                  <RotateCcw className="w-4 h-4" />
+                  New Search
                 </button>
               )}
             </div>
@@ -311,18 +330,17 @@ export default function NonprofitView() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="mb-4">
-              <h3 className="mb-1">
-                {matches.length > 0 ? "Matching Companies" : "No Matches Found"}
+            <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+              <h3 className="mb-2 text-green-900 font-semibold">
+                {matches.length > 0 ? "Available Sources" : "No Matches Found"}
               </h3>
               {matches.length > 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  Found {matches.length} {matches.length === 1 ? "company" : "companies"} with{" "}
-                  {goodsNeeded}
+                <p className="text-sm text-green-800">
+                  Found {matches.length} {matches.length === 1 ? "organization" : "organizations"} with available {goodsNeeded}
                 </p>
               ) : (
-                <p className="text-sm text-muted-foreground">
-                  Try different keywords like "food", "electronics", "clothing", etc.
+                <p className="text-sm text-green-800">
+                  Try different items like "food", "electronics", "clothing", or "furniture".
                 </p>
               )}
             </div>
