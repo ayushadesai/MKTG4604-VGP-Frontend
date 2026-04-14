@@ -48,9 +48,20 @@ export interface MatchResponse {
   served_from_cache: boolean;
 }
 
-export async function fetchMatches(queryText: string): Promise<MatchResponse> {
+export interface FetchMatchesParams {
+  queryText: string;
+  location?: string;
+  quantity?: string;
+  budget?: string;
+  isPurchasing?: boolean;
+  minPrice?: string;
+  maxPrice?: string;
+  organizationName?: string;
+}
+
+export async function fetchMatches(params: FetchMatchesParams): Promise<MatchResponse> {
   const token = await getToken();
-  await ensureBuyerProfile(token, queryText);
+  await ensureBuyerProfile(token, params);
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 60_000);
@@ -78,29 +89,38 @@ export async function fetchMatches(queryText: string): Promise<MatchResponse> {
   }
 }
 
-async function ensureBuyerProfile(token: string, queryText: string): Promise<void> {
+async function ensureBuyerProfile(token: string, params: FetchMatchesParams): Promise<void> {
+  const { queryText, location, budget, isPurchasing, minPrice, maxPrice } = params;
+
+  const budgetMax = maxPrice ? parseFloat(maxPrice) :
+                   budget ? parseFloat(budget.replace(/[^0-9.]/g, "")) :
+                   10000;
+  const budgetMin = minPrice ? parseFloat(minPrice) : 0;
+
   const check = await fetch(`${BASE_URL}/buyer/profile`, {
     headers: { ...HEADERS, Authorization: `Bearer ${token}` },
   });
+
+  const profileBody = {
+    segment: isPurchasing ? "reseller" : "nonprofit",
+    preferences: queryText.split(" ").filter((w) => w.length > 3).slice(0, 5),
+    budget_min: budgetMin,
+    budget_max: budgetMax,
+    location: location || "",
+    notes: queryText,
+  };
 
   if (!check.ok) {
     await fetch(`${BASE_URL}/buyer/onboarding`, {
       method: "POST",
       headers: { ...HEADERS, Authorization: `Bearer ${token}` },
-      body: JSON.stringify({
-        segment: "nonprofit",
-        preferences: queryText.split(" ").filter((w) => w.length > 3).slice(0, 5),
-        budget_min: 0,
-        budget_max: 10000,
-        location: "",
-        notes: queryText,
-      }),
+      body: JSON.stringify(profileBody),
     });
   } else {
     await fetch(`${BASE_URL}/buyer/profile`, {
       method: "PUT",
       headers: { ...HEADERS, Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ notes: queryText }),
+      body: JSON.stringify(profileBody),
     });
   }
 }

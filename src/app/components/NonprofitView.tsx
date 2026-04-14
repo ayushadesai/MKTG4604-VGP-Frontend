@@ -112,7 +112,16 @@ export default function NonprofitView() {
     setApiError(null);
     setExpandedCards(new Set());
     try {
-      const response = await fetchMatches(goodsNeeded);
+      const response = await fetchMatches({
+        queryText: goodsNeeded,
+        location,
+        quantity,
+        budget,
+        isPurchasing,
+        minPrice,
+        maxPrice,
+        organizationName: nonprofitName,
+      });
       setMatches(response.recommendations);
     } catch (err) {
       setApiError(err instanceof Error ? err.message : "Search failed");
