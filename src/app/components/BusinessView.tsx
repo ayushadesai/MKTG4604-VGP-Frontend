@@ -103,7 +103,7 @@ export default function BusinessView() {
     setExpandedCards(new Set());
     setHasSearched(true);
     try {
-      const result = await fetchMatches(inventory);
+      const result = await fetchMatches({ queryText: inventory });
       setMatches(result.recommendations);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
