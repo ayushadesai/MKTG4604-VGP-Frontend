@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import {
   Building2, Package, DollarSign, Search, MessageSquare,
   Send, AlertCircle, MapPin, Loader2, ChevronDown, ChevronUp, Sparkles,
+  Users, Heart,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { fetchMatches, RecommendationCard } from "../lib/api";
@@ -288,12 +289,12 @@ export default function BusinessView() {
               <div>
                 <h3 className="font-semibold text-gray-900">
                   {matches.length > 0
-                    ? `Found ${matches.length} match${matches.length !== 1 ? "es" : ""}`
+                    ? `Found ${matches.length} interested buyer${matches.length !== 1 ? "s" : ""}`
                     : "No matches found"}
                 </h3>
                 {matches.length > 0 && (
                   <p className="text-sm text-gray-500 mt-0.5">
-                    Best buyers for <span className="font-medium text-gray-700">"{inventory}"</span>
+                    Buyers & nonprofits interested in <span className="font-medium text-gray-700">"{inventory}"</span>
                   </p>
                 )}
               </div>
@@ -313,6 +314,9 @@ export default function BusinessView() {
                   score >= 0.75 ? "bg-emerald-100 text-emerald-800" :
                   score >= 0.5  ? "bg-blue-100 text-blue-800" :
                                   "bg-amber-100 text-amber-800";
+                const isNonprofit = item.condition === "nonprofit" || item.price === 0;
+                const buyerTypeLabel = isNonprofit ? "Nonprofit" : "Reseller / Buyer";
+                const BuyerIcon = isNonprofit ? Heart : Users;
 
                 return (
                   <motion.div
@@ -334,21 +338,25 @@ export default function BusinessView() {
                               <span className="text-xs px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-200 font-medium">
                                 {item.category}
                               </span>
-                              <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full capitalize">
-                                {item.condition}
+                              <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full flex items-center gap-1">
+                                <BuyerIcon className="w-3 h-3" />
+                                {buyerTypeLabel}
                               </span>
                             </div>
                           </div>
                         </div>
 
                         <div className="text-right flex-shrink-0">
+                          <div className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-0.5">Needs up to</div>
                           <div className="text-lg font-bold text-emerald-700 leading-tight">
-                            {item.price === 0 ? "Free" : `$${item.price.toFixed(2)}`}
+                            {item.quantity.toLocaleString()} units
                           </div>
-                          {item.price > 0 && <div className="text-xs text-gray-400">per unit</div>}
-                          <div className="text-xs text-gray-500 mt-1 font-medium">
-                            {item.quantity.toLocaleString()} avail.
-                          </div>
+                          {item.price > 0 && (
+                            <div className="text-xs text-gray-400 mt-1">Budget ~${item.price.toFixed(2)}/unit</div>
+                          )}
+                          {item.price === 0 && (
+                            <div className="text-xs text-gray-400 mt-1">Seeking donation</div>
+                          )}
                         </div>
                       </div>
 
