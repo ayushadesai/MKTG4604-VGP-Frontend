@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
 import {
-  Building2, Package, DollarSign, Search, MessageSquare,
-  Send, AlertCircle, MapPin, Loader2, ChevronDown, ChevronUp, Sparkles,
-  Users, Heart,
+  Building2, Package, DollarSign, Search,
+  AlertCircle, MapPin, Loader2, Heart, Users, Briefcase, Tag,
+  Plus, Upload,
 } from "lucide-react";
-import { motion, AnimatePresence } from "motion/react";
-import { fetchMatches, RecommendationCard } from "../lib/api";
+import { motion } from "motion/react";
+import { searchInterestedBuyers, BuyerInterestCard } from "../lib/api";
+import AddItemModal from "./AddItemModal";
+import BulkUploadModal from "./BulkUploadModal";
+import RegisterBusinessModal from "./RegisterBusinessModal";
 
 export default function BusinessView() {
   const [companyName, setCompanyName] = useState("");
@@ -13,12 +16,13 @@ export default function BusinessView() {
   const [location, setLocation] = useState("");
   const [estimatedValue, setEstimatedValue] = useState("");
   const [quantity, setQuantity] = useState("");
-  const [chatInput, setChatInput] = useState("");
-  const [matches, setMatches] = useState<RecommendationCard[]>([]);
+  const [buyers, setBuyers] = useState<BuyerInterestCard[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
+  const [showAddItem, setShowAddItem] = useState(false);
+  const [showBulkUpload, setShowBulkUpload] = useState(false);
+  const [showRegisterBusiness, setShowRegisterBusiness] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem("businessFormData");
@@ -39,97 +43,31 @@ export default function BusinessView() {
     localStorage.setItem("businessFormData", JSON.stringify(formData));
   }, [companyName, inventory, location, estimatedValue, quantity]);
 
-  const handleChatSubmit = () => {
-    if (!chatInput.trim()) return;
-    const input = chatInput.toLowerCase();
-
-    const companyPatterns = [
-      /i'?m\s+([a-zA-Z\s&]+?)(?:\s+and|,|\.|$)/i,
-      /from\s+([a-zA-Z\s&]+?)(?:\s+and|,|\.|$)/i,
-      /we'?re\s+([a-zA-Z\s&]+?)(?:\s+and|,|\.|$)/i,
-    ];
-    for (const pattern of companyPatterns) {
-      const match = input.match(pattern);
-      if (match && match[1]?.trim().length > 2) {
-        setCompanyName(match[1].trim().charAt(0).toUpperCase() + match[1].trim().slice(1));
-        break;
-      }
-    }
-
-    const quantityPatterns = [
-      /(\d+[,\d]*)\s+(extra|excess)?\s*([a-zA-Z\s]+?)(?:\s+every\s+day|daily|per day|a day)/i,
-      /(\d+[,\d]*)\s+([a-zA-Z\s]+?)(?:\s+in\s+stock|available)/i,
-      /have\s+(\d+[,\d]*)\s+([a-zA-Z\s]+)/i,
-    ];
-    for (const pattern of quantityPatterns) {
-      const match = input.match(pattern);
-      if (match) {
-        setQuantity(match[1]);
-        const itemIndex = match[2] === "extra" || match[2] === "excess" ? 3 : 2;
-        if (match[itemIndex]) setInventory(match[itemIndex].trim());
-        break;
-      }
-    }
-
-    if (!inventory) {
-      const inventoryPatterns = [
-        /(?:extra|excess|surplus)\s+([a-zA-Z\s,]+?)(?:\s+who|$)/i,
-        /have\s+(?:some\s+)?([a-zA-Z\s,]+?)(?:\s+who|that|to)/i,
-      ];
-      for (const pattern of inventoryPatterns) {
-        const match = input.match(pattern);
-        if (match && match[1]) { setInventory(match[1].trim()); break; }
-      }
-    }
-
-    const locationPatterns = [
-      /(?:in|from|at)\s+([A-Z][a-zA-Z\s]+,\s*[A-Z]{2})/,
-      /(?:in|from|at)\s+([A-Z][a-zA-Z\s]+)/,
-    ];
-    for (const pattern of locationPatterns) {
-      const match = chatInput.match(pattern);
-      if (match && match[1]) { setLocation(match[1].trim()); break; }
-    }
-
-    const valueMatch = chatInput.match(/\$(\d+[,\d]*(?:\.\d+)?[kKmM]?)/);
-    if (valueMatch) setEstimatedValue("$" + valueMatch[1]);
-
-    setChatInput("");
-  };
 
   const handleFindMatches = async () => {
     if (!inventory.trim() || isLoading) return;
     setIsLoading(true);
     setError(null);
-    setExpandedCards(new Set());
     setHasSearched(true);
     try {
-      const result = await fetchMatches({ queryText: inventory });
-      setMatches(result.recommendations);
+      const result = await searchInterestedBuyers(inventory);
+      setBuyers(result.buyers);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
-      setMatches([]);
+      setBuyers([]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const toggleCard = (itemId: string) => {
-    setExpandedCards((prev) => {
-      const next = new Set(prev);
-      if (next.has(itemId)) next.delete(itemId); else next.add(itemId);
-      return next;
-    });
-  };
-
   const handleClearResults = () => {
-    setMatches([]);
+    setBuyers([]);
     setHasSearched(false);
     setError(null);
-    setExpandedCards(new Set());
   };
 
   return (
+    <>
     <div className="max-w-4xl mx-auto">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
 
@@ -143,36 +81,14 @@ export default function BusinessView() {
           </p>
         </div>
 
-        <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 mb-6">
-          <p className="text-xs font-semibold text-emerald-600 uppercase tracking-wide mb-1">Example</p>
-          <p className="text-sm text-gray-700 italic">
-            "I'm Dunkin' and I have 500 extra doughnuts at the end of every day in Boston, MA."
-          </p>
-        </div>
-
-        <div className="mb-6">
-          <div className="flex items-center gap-2 mb-2">
-            <MessageSquare className="w-4 h-4 text-emerald-600" />
-            <span className="text-sm font-semibold text-gray-800">Quick Input</span>
-            <span className="text-xs text-gray-400">— describe your surplus</span>
-          </div>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              placeholder="e.g., I have 500 laptops available in California..."
-              value={chatInput}
-              onChange={(e) => setChatInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleChatSubmit()}
-              className="flex-1 px-4 py-3 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-all"
-            />
-            <button
-              onClick={handleChatSubmit}
-              disabled={!chatInput.trim()}
-              className="px-4 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
-            >
-              <Send className="w-4 h-4" />
-            </button>
-          </div>
+        <div className="flex justify-end mb-3">
+          <button
+            onClick={() => setShowRegisterBusiness(true)}
+            className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-emerald-300 transition-all text-sm text-gray-600 font-medium"
+          >
+            <Building2 className="w-4 h-4 text-emerald-600" />
+            Register as a Business
+          </button>
         </div>
 
         <div className="bg-white border border-gray-200 rounded-2xl p-6 mb-6 shadow-sm">
@@ -249,26 +165,44 @@ export default function BusinessView() {
               </div>
             </div>
 
-            <div className="flex gap-3 pt-2 border-t border-gray-100">
-              <button
-                onClick={handleFindMatches}
-                disabled={!inventory.trim() || isLoading}
-                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-emerald-700 text-white rounded-xl hover:bg-emerald-800 active:bg-emerald-900 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm font-semibold text-sm"
-              >
-                {isLoading ? (
-                  <><Loader2 className="w-4 h-4 animate-spin" />Searching…</>
-                ) : (
-                  <><Search className="w-4 h-4" />Find Matches</>
-                )}
-              </button>
-              {hasSearched && (
+            <div className="space-y-3 pt-2 border-t border-gray-100">
+              <div className="flex gap-3">
                 <button
-                  onClick={handleClearResults}
-                  className="px-5 py-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors text-sm text-gray-600 font-medium"
+                  onClick={handleFindMatches}
+                  disabled={!inventory.trim() || isLoading}
+                  className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-emerald-700 text-white rounded-xl hover:bg-emerald-800 active:bg-emerald-900 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm font-semibold text-sm"
                 >
-                  Clear
+                  {isLoading ? (
+                    <><Loader2 className="w-4 h-4 animate-spin" />Searching…</>
+                  ) : (
+                    <><Search className="w-4 h-4" />Find Matches</>
+                  )}
                 </button>
-              )}
+                {hasSearched && (
+                  <button
+                    onClick={handleClearResults}
+                    className="px-5 py-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors text-sm text-gray-600 font-medium"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowAddItem(true)}
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-emerald-300 transition-all text-sm text-gray-600 font-medium"
+                >
+                  <Plus className="w-4 h-4 text-emerald-600" />
+                  Add Item
+                </button>
+                <button
+                  onClick={() => setShowBulkUpload(true)}
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-emerald-300 transition-all text-sm text-gray-600 font-medium"
+                >
+                  <Upload className="w-4 h-4 text-emerald-600" />
+                  Bulk Upload
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -288,17 +222,17 @@ export default function BusinessView() {
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="font-semibold text-gray-900">
-                  {matches.length > 0
-                    ? `Found ${matches.length} interested buyer${matches.length !== 1 ? "s" : ""}`
+                  {buyers.length > 0
+                    ? `${buyers.length} organization${buyers.length !== 1 ? "s" : ""} want this`
                     : "No matches found"}
                 </h3>
-                {matches.length > 0 && (
+                {buyers.length > 0 && (
                   <p className="text-sm text-gray-500 mt-0.5">
-                    Buyers & nonprofits interested in <span className="font-medium text-gray-700">"{inventory}"</span>
+                    Buyers & nonprofits looking for <span className="font-medium text-gray-700">"{inventory}"</span>
                   </p>
                 )}
               </div>
-              {matches.length === 0 && (
+              {buyers.length === 0 && (
                 <p className="text-sm text-gray-500 max-w-xs text-right">
                   Try a different item type or keyword
                 </p>
@@ -306,99 +240,70 @@ export default function BusinessView() {
             </div>
 
             <div className="space-y-3">
-              {matches.map((item, index) => {
-                const isExpanded = expandedCards.has(item.item_id);
-                const score = item.composite_score;
-                const scoreLabel = score >= 0.75 ? "Strong" : score >= 0.5 ? "Good" : "Moderate";
-                const scoreBg =
-                  score >= 0.75 ? "bg-emerald-100 text-emerald-800" :
-                  score >= 0.5  ? "bg-blue-100 text-blue-800" :
-                                  "bg-amber-100 text-amber-800";
-                const isNonprofit = item.condition === "nonprofit" || item.price === 0;
-                const buyerTypeLabel = isNonprofit ? "Nonprofit" : "Reseller / Buyer";
-                const BuyerIcon = isNonprofit ? Heart : Users;
+              {buyers.map((buyer, index) => {
+                const segmentConfig = {
+                  nonprofit: { label: "Nonprofit", icon: Heart, bg: "bg-rose-50 text-rose-700 border-rose-200" },
+                  reseller:  { label: "Reseller",  icon: Tag,   bg: "bg-blue-50 text-blue-700 border-blue-200" },
+                  smb:       { label: "Business",  icon: Briefcase, bg: "bg-purple-50 text-purple-700 border-purple-200" },
+                }[buyer.segment] ?? { label: buyer.segment, icon: Users, bg: "bg-gray-100 text-gray-600 border-gray-200" };
+
+                const strengthBg =
+                  buyer.match_strength === "Strong"   ? "bg-emerald-100 text-emerald-800" :
+                  buyer.match_strength === "Good"     ? "bg-blue-100 text-blue-800" :
+                                                        "bg-amber-100 text-amber-800";
+                const Icon = segmentConfig.icon;
 
                 return (
                   <motion.div
-                    key={item.item_id}
+                    key={`${buyer.org_name}-${index}`}
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: index * 0.07 }}
-                    className="bg-white border border-gray-200 rounded-2xl overflow-hidden hover:border-emerald-300 hover:shadow-md transition-all shadow-sm"
+                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                    className="bg-white border border-gray-200 rounded-2xl p-5 hover:border-emerald-300 hover:shadow-md transition-all shadow-sm"
                   >
-                    <div className="p-5">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex items-start gap-3 flex-1 min-w-0">
-                          <div className="w-8 h-8 rounded-full bg-emerald-700 text-white flex items-center justify-center flex-shrink-0 text-sm font-bold">
-                            {index + 1}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <h4 className="font-semibold text-gray-900 text-sm leading-snug">{item.title}</h4>
-                            <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
-                              <span className="text-xs px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-200 font-medium">
-                                {item.category}
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex items-start gap-3 flex-1 min-w-0">
+                        <div className="w-8 h-8 rounded-full bg-emerald-700 text-white flex items-center justify-center flex-shrink-0 text-sm font-bold">
+                          {index + 1}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-semibold text-gray-900 text-sm leading-snug">{buyer.org_name}</h4>
+                          <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
+                            <span className={`text-xs px-2 py-0.5 rounded-full border font-medium flex items-center gap-1 ${segmentConfig.bg}`}>
+                              <Icon className="w-3 h-3" />
+                              {segmentConfig.label}
+                            </span>
+                            {buyer.location && (
+                              <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full flex items-center gap-1">
+                                <MapPin className="w-3 h-3" />
+                                {buyer.location}
                               </span>
-                              <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full flex items-center gap-1">
-                                <BuyerIcon className="w-3 h-3" />
-                                {buyerTypeLabel}
-                              </span>
-                            </div>
+                            )}
                           </div>
                         </div>
-
-                        <div className="text-right flex-shrink-0">
-                          <div className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-0.5">Needs up to</div>
-                          <div className="text-lg font-bold text-emerald-700 leading-tight">
-                            {item.quantity.toLocaleString()} units
-                          </div>
-                          {item.price > 0 && (
-                            <div className="text-xs text-gray-400 mt-1">Budget ~${item.price.toFixed(2)}/unit</div>
-                          )}
-                          {item.price === 0 && (
-                            <div className="text-xs text-gray-400 mt-1">Seeking donation</div>
-                          )}
-                        </div>
                       </div>
-
-                      <div className="mt-3">
-                        <span className={`inline-flex items-center text-xs px-2.5 py-1 rounded-full font-semibold ${scoreBg}`}>
-                          {scoreLabel} match
-                        </span>
-                      </div>
+                      <span className={`text-xs px-2.5 py-1 rounded-full font-semibold flex-shrink-0 ${strengthBg}`}>
+                        {buyer.match_strength} match
+                      </span>
                     </div>
 
-                    <button
-                      onClick={() => toggleCard(item.item_id)}
-                      className="w-full flex items-center justify-between gap-2 px-5 py-3 text-sm text-emerald-700 hover:bg-emerald-50 transition-colors border-t border-gray-100 font-medium"
-                    >
-                      <span className="flex items-center gap-1.5">
-                        <Sparkles className="w-3.5 h-3.5" />
-                        AI Recommendation
-                      </span>
-                      {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                    </button>
+                    <p className="mt-3 text-sm text-gray-600 leading-relaxed">{buyer.wants}</p>
 
-                    <AnimatePresence>
-                      {isExpanded && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.2 }}
-                          className="overflow-hidden"
-                        >
-                          <div className="px-5 pb-5 pt-3 bg-emerald-50/60 border-t border-emerald-100">
-                            <p className="text-sm text-gray-700 leading-relaxed">{item.recommendation_text}</p>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                    {buyer.preferences.length > 0 && (
+                      <div className="mt-3 flex flex-wrap gap-1.5">
+                        {buyer.preferences.map((pref) => (
+                          <span key={pref} className="text-xs px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-100">
+                            {pref}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </motion.div>
                 );
               })}
             </div>
 
-            {matches.length > 0 && (
+            {buyers.length > 0 && (
               <div className="mt-6 text-center">
                 <p className="text-sm text-gray-500">
                   Have different inventory?{" "}
@@ -415,5 +320,9 @@ export default function BusinessView() {
         )}
       </motion.div>
     </div>
+    {showAddItem && <AddItemModal onClose={() => setShowAddItem(false)} />}
+    {showBulkUpload && <BulkUploadModal onClose={() => setShowBulkUpload(false)} />}
+    {showRegisterBusiness && <RegisterBusinessModal onClose={() => setShowRegisterBusiness(false)} />}
+    </>
   );
 }

@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import {
-  ShoppingCart, MapPin, Package, Search, MessageSquare, Send,
-  DollarSign, Tag, Loader2, AlertCircle, ChevronDown, ChevronUp, Sparkles,
+  ShoppingCart, MapPin, Package, Search,
+  DollarSign, Tag, Loader2, AlertCircle, ChevronDown, ChevronUp, Sparkles, UserPlus,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { fetchMatches, RecommendationCard } from "../lib/api";
+import RegisterBuyerModal from "./RegisterBuyerModal";
 
 export default function NonprofitView() {
   const [nonprofitName, setNonprofitName] = useState("");
@@ -12,7 +13,6 @@ export default function NonprofitView() {
   const [location, setLocation] = useState("");
   const [quantity, setQuantity] = useState("");
   const [budget, setBudget] = useState("");
-  const [chatInput, setChatInput] = useState("");
   const [matches, setMatches] = useState<RecommendationCard[]>([]);
   const [hasSearched, setHasSearched] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -21,6 +21,7 @@ export default function NonprofitView() {
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
+  const [showRegister, setShowRegister] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem("nonprofitFormData");
@@ -43,68 +44,6 @@ export default function NonprofitView() {
     const formData = { nonprofitName, goodsNeeded, location, quantity, budget, isPurchasing, minPrice, maxPrice };
     localStorage.setItem("nonprofitFormData", JSON.stringify(formData));
   }, [nonprofitName, goodsNeeded, location, quantity, budget, isPurchasing, minPrice, maxPrice]);
-
-  const handleChatSubmit = () => {
-    if (!chatInput.trim()) return;
-    const input = chatInput.toLowerCase();
-
-    const orgPatterns = [
-      /i'?m\s+(?:a\s+)?([a-zA-Z\s&]+?)(?:\s+and|,|\.|\s+how|\s+looking|$)/i,
-      /we'?re\s+(?:a\s+)?([a-zA-Z\s&]+?)(?:\s+and|,|\.|\s+how|\s+looking|$)/i,
-      /from\s+([a-zA-Z\s&]+?)(?:\s+and|,|\.|\s+how|\s+looking|$)/i,
-    ];
-    for (const pattern of orgPatterns) {
-      const match = input.match(pattern);
-      if (match && match[1]) {
-        const extracted = match[1].trim();
-        if (extracted.length > 2 && !["food bank", "nonprofit", "reseller", "buyer"].includes(extracted)) {
-          setNonprofitName(extracted.charAt(0).toUpperCase() + extracted.slice(1));
-          break;
-        }
-      }
-    }
-
-    const quantityPatterns = [
-      /(?:need|looking for|want)\s+(\d+[,\d]*)\s+([a-zA-Z\s]+?)(?:\s+per|daily|weekly|monthly|$)/i,
-      /(\d+[,\d]*)\s+([a-zA-Z\s]+?)(?:\s+needed|required)/i,
-    ];
-    for (const pattern of quantityPatterns) {
-      const match = input.match(pattern);
-      if (match) {
-        setQuantity(match[1]);
-        if (match[2]) setGoodsNeeded(match[2].trim());
-        break;
-      }
-    }
-
-    if (!goodsNeeded) {
-      const goodsPatterns = [
-        /(?:need|looking for|want|get)\s+(?:some\s+)?(?:donated\s+)?([a-zA-Z\s,]+?)(?:\s+from|\?|$)/i,
-        /(?:for|buy|purchase)\s+([a-zA-Z\s,]+?)(?:\s+from|\?|$)/i,
-      ];
-      for (const pattern of goodsPatterns) {
-        const match = input.match(pattern);
-        if (match && match[1]) {
-          const goods = match[1].trim();
-          if (goods.length > 2 && !goods.includes("how can")) { setGoodsNeeded(goods); break; }
-        }
-      }
-    }
-
-    const locationPatterns = [
-      /(?:in|from|at|near)\s+([A-Z][a-zA-Z\s]+,\s*[A-Z]{2})/,
-      /(?:in|from|at|near)\s+([A-Z][a-zA-Z\s]+)/,
-    ];
-    for (const pattern of locationPatterns) {
-      const match = chatInput.match(pattern);
-      if (match && match[1]) { setLocation(match[1].trim()); break; }
-    }
-
-    const budgetMatch = chatInput.match(/(?:budget|pay|spend|up to)\s+\$(\d+[,\d]*(?:\.\d+)?[kKmM]?)/i);
-    if (budgetMatch) setBudget("$" + budgetMatch[1]);
-
-    setChatInput("");
-  };
 
   const handleFindMatches = async () => {
     if (!goodsNeeded.trim() || isLoading) return;
@@ -148,6 +87,7 @@ export default function NonprofitView() {
   };
 
   return (
+    <>
     <div className="max-w-4xl mx-auto">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
 
@@ -161,36 +101,14 @@ export default function NonprofitView() {
           </p>
         </div>
 
-        <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 mb-6">
-          <p className="text-xs font-semibold text-emerald-600 uppercase tracking-wide mb-1">Example</p>
-          <p className="text-sm text-gray-700 italic">
-            "I'm a food bank in Portland looking for food and produce that can be donated."
-          </p>
-        </div>
-
-        <div className="mb-6">
-          <div className="flex items-center gap-2 mb-2">
-            <MessageSquare className="w-4 h-4 text-emerald-600" />
-            <span className="text-sm font-semibold text-gray-800">Quick Input</span>
-            <span className="text-xs text-gray-400">— we'll extract the details</span>
-          </div>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              placeholder="e.g., I need electronics, laptops, or office furniture in California..."
-              value={chatInput}
-              onChange={(e) => setChatInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleChatSubmit()}
-              className="flex-1 px-4 py-3 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-all"
-            />
-            <button
-              onClick={handleChatSubmit}
-              disabled={!chatInput.trim()}
-              className="px-4 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
-            >
-              <Send className="w-4 h-4" />
-            </button>
-          </div>
+        <div className="flex justify-end mb-3">
+          <button
+            onClick={() => setShowRegister(true)}
+            className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-emerald-300 transition-all text-sm text-gray-600 font-medium"
+          >
+            <UserPlus className="w-4 h-4 text-emerald-600" />
+            Register as a Buyer
+          </button>
         </div>
 
         <div className="bg-white border border-gray-200 rounded-2xl p-6 mb-6 shadow-sm">
@@ -348,26 +266,28 @@ export default function NonprofitView() {
               )}
             </AnimatePresence>
 
-            <div className="flex gap-3 pt-2 border-t border-gray-100">
-              <button
-                onClick={handleFindMatches}
-                disabled={!goodsNeeded.trim() || isLoading}
-                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-emerald-700 text-white rounded-xl hover:bg-emerald-800 active:bg-emerald-900 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm font-semibold text-sm"
-              >
-                {isLoading ? (
-                  <><Loader2 className="w-4 h-4 animate-spin" />Searching…</>
-                ) : (
-                  <><Search className="w-4 h-4" />Find Available</>
-                )}
-              </button>
-              {hasSearched && (
+            <div className="space-y-3 pt-2 border-t border-gray-100">
+              <div className="flex gap-3">
                 <button
-                  onClick={handleClearResults}
-                  className="px-5 py-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors text-sm text-gray-600 font-medium"
+                  onClick={handleFindMatches}
+                  disabled={!goodsNeeded.trim() || isLoading}
+                  className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-emerald-700 text-white rounded-xl hover:bg-emerald-800 active:bg-emerald-900 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-sm font-semibold text-sm"
                 >
-                  Clear
+                  {isLoading ? (
+                    <><Loader2 className="w-4 h-4 animate-spin" />Searching…</>
+                  ) : (
+                    <><Search className="w-4 h-4" />Find Available</>
+                  )}
                 </button>
-              )}
+                {hasSearched && (
+                  <button
+                    onClick={handleClearResults}
+                    className="px-5 py-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors text-sm text-gray-600 font-medium"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -505,5 +425,7 @@ export default function NonprofitView() {
         )}
       </motion.div>
     </div>
+    {showRegister && <RegisterBuyerModal onClose={() => setShowRegister(false)} />}
+    </>
   );
 }
