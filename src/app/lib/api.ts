@@ -246,6 +246,20 @@ export async function searchInterestedBuyers(queryText: string): Promise<BuyerSe
   return res.json();
 }
 
+export async function getAllBuyers(): Promise<BuyerInterestCard[]> {
+  const token = await getToken();
+
+  const res = await fetch(`${BASE_URL}/match/buyers`, {
+    headers: { ...HEADERS, Authorization: `Bearer ${token}` },
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to load buyers");
+  }
+  return res.json();
+}
+
 // ── Retailer inventory types & functions ───────────────────────────────────────
 
 export interface InventoryItem {
